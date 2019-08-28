@@ -60,20 +60,26 @@ function findStuff(URL, type){
 }
 
 function printStuff(resp, type){
+                appendLog("\n\n");
              
                 if(type === "event"){  
-                    console.log("\n\n***|UPCOMING EVENTS: " + qryItem + "|***");  
-                    resp.data.forEach(item => {           
-                        console.log(
-                            "\nVenue: " + item.venue.name +
-                            "\nLocation: " + item.venue.city + ", " + item.venue.state + 
-                            "\nDate: " + moment(item.datetime).format("MM/DD/YYYY")
-                        );
+                    console.log("\n***|UPCOMING EVENTS: " + qryItem + "|***");  
+                    appendLog("\n***|UPCOMING EVENTS: " + qryItem + "|***");
+                    console.log(resp.data[0])
+                    resp.data.forEach(item => {        
+                        var text = "\nVenue: " + item.venue.name +
+                                    "\nLocation: " + item.venue.city + ", " + item.venue.region + " " + item.venue.country +
+                                    "\nDate: " + moment(item.datetime).format("MM/DD/YYYY") +
+                                    "\n";
+                        console.log(text);
+                        appendLog(text);
                     });
                 }
 
                 if(type === "movie"){
                     var rtScore;
+                    console.log("\n***|MOVIE INFO: " + qryItem + "|***");  
+                    appendLog("\n***|MOVIE INFO: " + qryItem + "|***");
                     for(var rating in resp.data.Ratings){
                         if(resp.data.Ratings[rating].Source === "Rotten Tomatoes"){
                             rtScore =  resp.data.Ratings[rating].Value;
@@ -82,18 +88,44 @@ function printStuff(resp, type){
                         else    
                             rtScore =  "No Score Available"
                     }
-
-                    console.log(
-                        "\n Title: " + resp.data.Title +
-                        "\n Year: " + resp.data.Year +
-                        "\n IMDB Rating: " + resp.data.imdbRating +
-                        "\n Rotten Tomato Rating: " + rtScore +
-                        "\n Country: " + resp.data.Country +
-                        "\n Plot: " + resp.data.Plot +
-                        "\n Actors: " + resp.data.Actors
-                    )
+                    var text =  "\n Title: " + resp.data.Title +
+                                "\n Year: " + resp.data.Year +
+                                "\n IMDB Rating: " + resp.data.imdbRating +
+                                "\n Rotten Tomato Rating: " + rtScore +
+                                "\n Country: " + resp.data.Country +
+                                "\n Plot: " + resp.data.Plot +
+                                "\n Actors: " + resp.data.Actors +
+                                "\n\n";
+                    console.log(text);
+                    appendLog(text);
                 }
-            console.log("\n\n");
+
+                if(type === "spot"){
+                    console.log("\n***|TOP 5 RESULTS FOR " + qryItem + "|***");
+                    appendLog("\n***|TOP 5 RESULTS FOR " + qryItem + "|***");
+                    var text = "";
+                    for(var i = 0; i < 5; ++i){
+                        var artists = "";
+                        resp.tracks.items[i].album.artists.forEach(artist => artists += artist.name)
+                        //console.log(data.tracks.items[i].album)
+                        text += "\nArtist(s): " + artists +
+                                    "\nTrack Name: " + resp.tracks.items[i].name +
+                                    "\nPreview Link: " + resp.tracks.items[i].preview_url +
+                                    "\nAlbum: " + resp.tracks.items[i].album.name + 
+                                    "\n";
+                        
+                    }
+                    console.log(text);
+                    appendLog(text);
+                }
+}
+
+async function appendLog(text){
+    fs.appendFile("log.txt", text, function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
 }
 
 function spotArtist(){
@@ -107,18 +139,6 @@ function spotArtist(){
             return console.log("Error: " + err);
         
         clear();
-        console.log("***|TOP 5 RESULTS FOR " + process.argv[3] + "|***");
-        for(var i = 0; i < 5; ++i){
-            var artists = "";
-            data.tracks.items[i].album.artists.forEach(artist => artists += artist.name)
-            //console.log(data.tracks.items[i].album)
-            console.log(
-                "\nArtist(s): " + artists +
-                "\nTrack Name: " + data.tracks.items[i].name +
-                "\nPreview Link: " + data.tracks.items[i].preview_url +
-                "\nAlbum: " + data.tracks.items[i].album.name + 
-                "\n"
-            );
-        }
+        printStuff(data, "spot")
     });
 }
