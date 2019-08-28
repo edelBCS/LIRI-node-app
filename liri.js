@@ -60,26 +60,26 @@ function findStuff(URL, type){
 }
 
 function printStuff(resp, type){
-                appendLog("\n\n");
              
-                if(type === "event"){  
-                    console.log("\n***|UPCOMING EVENTS: " + qryItem + "|***");  
-                    appendLog("\n***|UPCOMING EVENTS: " + qryItem + "|***");
-                    console.log(resp.data[0])
+                if(type === "event"){
+                    clear();
+                    var text = "\n***|UPCOMING EVENTS: " + qryItem + "|***\n";
+                    // console.log(resp.data[0])
                     resp.data.forEach(item => {        
-                        var text = "\nVenue: " + item.venue.name +
+                        text += "\nVenue: " + item.venue.name +
                                     "\nLocation: " + item.venue.city + ", " + item.venue.region + " " + item.venue.country +
                                     "\nDate: " + moment(item.datetime).format("MM/DD/YYYY") +
                                     "\n";
-                        console.log(text);
-                        appendLog(text);
+                        
                     });
+                    console.log(text);
+                    appendLog(text);
                 }
 
                 if(type === "movie"){
+                    clear();
                     var rtScore;
-                    console.log("\n***|MOVIE INFO: " + qryItem + "|***");  
-                    appendLog("\n***|MOVIE INFO: " + qryItem + "|***");
+                    var text = "\n***|MOVIE INFO: " + qryItem + "|***";
                     for(var rating in resp.data.Ratings){
                         if(resp.data.Ratings[rating].Source === "Rotten Tomatoes"){
                             rtScore =  resp.data.Ratings[rating].Value;
@@ -88,7 +88,7 @@ function printStuff(resp, type){
                         else    
                             rtScore =  "No Score Available"
                     }
-                    var text =  "\n Title: " + resp.data.Title +
+                    text +=  "\n Title: " + resp.data.Title +
                                 "\n Year: " + resp.data.Year +
                                 "\n IMDB Rating: " + resp.data.imdbRating +
                                 "\n Rotten Tomato Rating: " + rtScore +
@@ -101,9 +101,8 @@ function printStuff(resp, type){
                 }
 
                 if(type === "spot"){
-                    console.log("\n***|TOP 5 RESULTS FOR " + qryItem + "|***");
-                    appendLog("\n***|TOP 5 RESULTS FOR " + qryItem + "|***");
-                    var text = "";
+                    clear();
+                    var text = "\n***|TOP 5 RESULTS FOR " + qryItem + "|***\n";
                     for(var i = 0; i < 5; ++i){
                         var artists = "";
                         resp.tracks.items[i].album.artists.forEach(artist => artists += artist.name)
