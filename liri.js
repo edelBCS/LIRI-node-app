@@ -5,32 +5,50 @@ var axios = require("axios");
 var Spotify = require('node-spotify-api');
 var moment = require("moment");
 var clear = require("clear");
+var fs = require("fs");
 
 var spotify = new Spotify(keys.spotify);
 
 var liriCmd = process.argv[2];
 var qryItem = process.argv[3];
 
-switch(liriCmd){
-    case "concert-this":
-        var bandsInTownURL = "https://rest.bandsintown.com/artists/" + qryItem + "/events?app_id=codingbootcamp";
-        clear();
-        findStuff(bandsInTownURL, "event");
-        break;
+runLIRI(liriCmd);
 
-    case "spotify-this-song":
-        spotArtist();
-        break;
+function runLIRI(cmd){
+    switch(cmd){
+        case "concert-this":
+            var bandsInTownURL = "https://rest.bandsintown.com/artists/" + qryItem + "/events?app_id=codingbootcamp";
+            clear();
+            findStuff(bandsInTownURL, "event");
+            break;
 
-    case "movie-this":
-        var movieURL = "http://www.omdbapi.com/?apikey=trilogy&t=" + qryItem;
-        clear();
-        findStuff(movieURL, "movie");
-        break;
-    case "do-what-it-says":
-        break;
-    default:
-        console.log("Error: LIRI does not understand your command");
+        case "spotify-this-song":
+            spotArtist();
+            break;
+
+        case "movie-this":
+            if(qryItem === "" || !qryItem)
+                qryItem = "Mr. Nobody"
+            var movieURL = "http://www.omdbapi.com/?apikey=trilogy&t=" + qryItem;
+            clear();
+            findStuff(movieURL, "movie");
+            break;
+            
+        case "do-what-it-says":
+            fs.readFile("random.txt", "utf8", function(error, data) {
+                if (error) {
+                    return console.log(error);
+                }
+
+                var dataArr = data.split(",");
+                qryItem = dataArr[1];
+                runLIRI(dataArr[0]);
+            });
+            
+            break;
+        default:
+            console.log("Error: LIRI does not understand your command");
+    }
 }
 
 function findStuff(URL, type){
@@ -81,7 +99,7 @@ function printStuff(resp, type){
 function spotArtist(){
     spotify.search({
         type: "track",
-        query: process.argv[3],
+        query: qryItem,
         limit: 5
 
     }, (err, data) => {
